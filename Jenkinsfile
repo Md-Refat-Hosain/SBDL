@@ -5,7 +5,7 @@ pipeline {
         stage('Build') {
             steps {
                 // Ensure python3/pip are used if pipenv isn't in the container
-                sh 'python3 -m pip install --upgrade pip'
+               sh 'python3 -m pip install --upgrade pip --user'
             }
         }
         stage('Test') {
