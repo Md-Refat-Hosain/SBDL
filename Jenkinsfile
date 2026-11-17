@@ -4,37 +4,42 @@ pipeline {
     stages {
         stage('Build') {
             steps {
-               sh 'pipenv --python python3 sync'
+                // Ensure python3/pip are used if pipenv isn't in the container
+                sh 'python3 -m pip install --upgrade pip'
             }
         }
         stage('Test') {
             steps {
-               sh 'pipenv run pytest'
+                // Use pytest directly if pipenv isn't configured in container
+                sh 'python3 -m pytest'
             }
         }
         stage('Package') {
-	    when{
-		    anyOf{ branch "main" ; branch 'release' }
-	    }
+            when {
+                anyOf { branch "main" ; branch "master" ; branch 'release' }
+            }
             steps {
-               sh 'zip -r sbdl.zip lib'
+                // Using python to zip folder if 'zip' utility is missing in Docker
+                sh 'python3 -m zipfile -c sbdl.zip lib/'
             }
         }
-	stage('Release') {
-	   when{
-	      branch 'release'
-	   }
-           steps {
-              sh "scp -i /home/prashant/cred/edge-node_key.pem -o 'StrictHostKeyChecking no' -r sbdl.zip log4j.properties sbdl_main.py sbdl_submit.sh conf prashant@40.117.123.105:/home/prashant/sbdl-qa"
-           }
+        stage('Release') {
+            when {
+                branch 'release'
+            }
+            steps {
+                // Local simulation instead of Prashant's private Azure VM
+                sh 'echo "Simulating release deployment locally on Mac..."'
+            }
         }
-	stage('Deploy') {
-	   when{
-	      branch 'main'
-	   }
-           steps {
-               sh "scp -i /home/prashant/cred/edge-node_key.pem -o 'StrictHostKeyChecking no' -r sbdl.zip log4j.properties sbdl_main.py sbdl_submit.sh conf prashant@40.117.123.105:/home/prashant/sbdl-prod"
-           }
+        stage('Deploy') {
+            when {
+                anyOf { branch "main" ; branch "master" }
+            }
+            steps {
+                // Local simulation instead of Prashant's private Azure VM
+                sh 'echo "Simulating production deployment locally on Mac..."'
+            }
         }
     }
 }
