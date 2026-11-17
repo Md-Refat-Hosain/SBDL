@@ -4,13 +4,11 @@ pipeline {
     stages {
         stage('Build') {
             steps {
-                // Ensure python3/pip are used if pipenv isn't in the container
                 sh 'pipenv --python python3 sync'
             }
         }
         stage('Test') {
             steps {
-                // Use pytest directly if pipenv isn't configured in container
                 sh 'pipenv run pytest'
             }
         }
@@ -19,7 +17,6 @@ pipeline {
                 anyOf { branch "main" ; branch "master" ; branch 'release' }
             }
             steps {
-                // Using python to zip folder if 'zip' utility is missing in Docker
                 sh 'python3 -m zipfile -c sbdl.zip lib/'
             }
         }
@@ -28,8 +25,7 @@ pipeline {
                 branch 'release'
             }
             steps {
-                // Local simulation instead of Prashant's private Azure VM
-                sh 'echo "Simulating release deployment locally on Mac..."'
+                sh 'echo "Simulating release deployment locally..."'
             }
         }
         stage('Deploy') {
@@ -37,8 +33,7 @@ pipeline {
                 anyOf { branch "main" ; branch "master" }
             }
             steps {
-                // Local simulation instead of Prashant's private Azure VM
-                sh 'echo "Simulating production deployment locally on Mac..."'
+                sh 'echo "Simulating production deployment locally..."'
             }
         }
     }
