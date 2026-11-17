@@ -5,14 +5,13 @@ pipeline {
         stage('Build') {
             steps {
                 // Ensure python3/pip are used if pipenv isn't in the container
-               sh 'python3 -m venv venv'
-               sh './venv/bin/pip install --upgrade pip'
+                sh 'pipenv --python python3 sync'
             }
         }
         stage('Test') {
             steps {
                 // Use pytest directly if pipenv isn't configured in container
-                sh './venv/bin/pytest'
+                sh 'pipenv run pytest'
             }
         }
         stage('Package') {
